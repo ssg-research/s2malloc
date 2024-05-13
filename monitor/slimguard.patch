@@ -1,0 +1,13 @@
+diff --git a/Makefile b/Makefile
+index 5b53572..2238d63 100644
+--- a/Makefile
++++ b/Makefile
+@@ -3,7 +3,7 @@ CC = gcc
+ CXX = g++
+ STANDALONE=slimguard-standalone
+ 
+-CFLAGS = -Wall -pedantic -O3 -Wno-deprecated-declarations -I./include
++CFLAGS = -Wall -pedantic -O2 -Wno-deprecated-declarations -I./include
+ 
+ CFLAGS += -DGUARDPAGE
+ CFLAGS += -DRELEASE_MEM

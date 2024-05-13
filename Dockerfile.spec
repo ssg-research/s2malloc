@@ -1,0 +1,103 @@
+# Buildld and run:
+# docker build -t debian .
+# docker run --name guarder -dt debian
+# docker exec -it guarder /bin/bash
+
+
+FROM debian
+
+RUN DEBIAN_FRONTEND="noninteractive" apt-get update && apt-get -y install tzdata
+
+# base
+RUN apt-get update \
+  && apt-get install -y build-essential \
+      gcc \
+      g++ \
+      gdb \
+      clang \
+      make \
+      ninja-build \
+      cmake \
+      autoconf \
+      automake \
+      libtool \
+      valgrind \
+      locales-all \
+      dos2unix \
+      rsync \
+      tar \
+      python \
+      python-dev \
+  && apt-get clean
+
+RUN apt-get update \
+  && apt-get install -y git vim\
+  && apt-get clean
+
+RUN apt-get update \
+  && apt-get install -y tar wget \
+  && apt-get clean
+
+# parsec dependencies
+RUN apt-get update \
+  && apt-get install -y libx11-dev libxext-dev libxt-dev libxmu-headers x11proto-input-dev libxi-dev  pkg-config gettext libxmu-dev\
+  && apt-get clean
+
+# clone parsec
+RUN mkdir -p /app
+
+# use bash
+SHELL ["/bin/bash", "-ec"]
+
+# install monitor dependency
+RUN apt-get update && apt-get install -y time python3-pip curl && apt-get clean
+
+# copy unialloc
+RUN mkdir /app/unialloc
+COPY . /app/unialloc
+
+# build unialloc
+WORKDIR /app/unialloc
+RUN git checkout rev2
+RUN cmake -DGLIBC_OVERRIDE=ON -DWORD_ALIGN=ON .
+RUN make
+
+# clone memory allocators
+RUN mkdir -p /app/Guarder && git clone http://github.com/UTSASRG/Guarder.git /app/Guarder
+RUN mkdir -p /app/SlimGuard && git clone http://github.com/ssrg-vt/SlimGuard.git /app/SlimGuard
+RUN mkdir -p /app/DieHard && git clone --recursive http://github.com/emeryberger/DieHard /app/DieHard
+
+# build them
+WORKDIR /app/Guarder
+RUN git apply /app/unialloc/monitor/guarder.patch && make
+
+WORKDIR /app/SlimGuard
+RUN git checkout 81f1b0fbfbd4c025 && git apply /app/unialloc/monitor/slimguard.patch && make
+
+WORKDIR /app/DieHard/src
+RUN make linux-gcc-64 TARGET=libdieharder
+
+# copy prior work libs
+RUN cp /app/Guarder/libguarder.so /app/unialloc/lib
+RUN cp /app/SlimGuard/libSlimGuard.so /app/unialloc/lib
+RUN cp /app/DieHard/src/libdieharder.so /app/unialloc/lib
+
+# spec get
+RUN wget -O /app/spec.iso {SPEC_ISO_LINK_HERE}
+RUN mkdir -p /app/spec
+
+# spec build
+WORKDIR /app/spec
+RUN cmake -E tar xf /app/spec.iso
+RUN echo yes | /app/spec/install.sh
+
+# update spec
+RUN source shrc
+
+# clean spec
+RUN rm /app/spec.iso
+
+# copy config
+RUN cp /app/unialloc/monitor/test.cfg /app/spec/config
+WORKDIR /app/spec
+RUN source /app/spec/shrc

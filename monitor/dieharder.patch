@@ -1,0 +1,12 @@
+diff --git a/src/include/randomminiheap-dieharder.h b/src/include/randomminiheap-dieharder.h
+index a82e32d..70b89d9 100644
+--- a/src/include/randomminiheap-dieharder.h
++++ b/src/include/randomminiheap-dieharder.h
+@@ -55,7 +55,6 @@ public:
+     bool didFree = SuperHeap::free (ptr);
+     if (didFree) {
+       // Trash the object: REQUIRED for DieHarder.
+-      memset (ptr, 0, ObjectSize);
+     }
+     return didFree;
+   }

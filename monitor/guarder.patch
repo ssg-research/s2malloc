@@ -1,0 +1,22 @@
+diff --git a/xdefines.hh b/xdefines.hh
+index e2796a6..93ef335 100644
+--- a/xdefines.hh
++++ b/xdefines.hh
+@@ -115,7 +115,7 @@ inline size_t aligndown(size_t addr, size_t alignto) { return (addr & ~(alignto
+ #define SRAND(x) srand(x)
+ #endif
+
+-#define DEFAULT_BIBOP_ENTROPY_BITS 10
++#define DEFAULT_BIBOP_ENTROPY_BITS 8
+ #define BIBOP_ENTROPY_BITS opts.bibop_entropy_bits
+ #define BIBOP_CACHE_SIZE opts.bibop_cache_size
+ #define BIBOP_CACHE_SIZE_MASK (BIBOP_CACHE_SIZE - 1)
+@@ -133,7 +133,7 @@ inline size_t aligndown(size_t addr, size_t alignto) { return (addr & ~(alignto
+ #define NUM_DEAD_OBJS (OVER_PROV_OBJ_BUF_SZ * \
+ 		(opts.over_prov_numerator - opts.over_prov_denominator) / opts.over_prov_numerator)
+ #define DEFAULT_OVER_PROV_NUMERATOR 8
+-#define DEFAULT_OVER_PROV_DENOMINATOR 7
++#define DEFAULT_OVER_PROV_DENOMINATOR 8
+ #define DEFAULT_RAND_GUARD_PROP 0.1		// 10% guard pages per bag
+
+ #define PAGESIZE 0x1000
